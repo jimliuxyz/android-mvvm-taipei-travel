@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Taipei Travel</string>
+    <string name="ts_name_hero" translatable="false">hero%</string>
+</resources>

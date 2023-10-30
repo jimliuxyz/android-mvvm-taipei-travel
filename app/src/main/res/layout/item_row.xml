@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="img"
+            type="String" />
+
+        <variable
+            name="itemIdx"
+            type="int" />
+
+        <variable
+            name="item"
+            type="com.example.taipeitravel.models.Attraction" />
+
+        <variable
+            name="itemClickListener"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{(v) -> itemClickListener.onClick(v)}"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/item_image"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:transitionName="@{`hero`+item.id}"
+            app:srcUrl="@{img}"
+            app:placeholder="@{@drawable/img_placeholder5}" />
+
+        <LinearLayout
+            android:id="@+id/row_desc_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toEndOf="@+id/item_image"
+            android:layout_toStartOf="@+id/to_detail"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="@{itemIdx + `. ` + item.name}"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:text="@{item.introduction}"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="25dp"
+            android:id="@+id/to_detail"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/baseline_arrow_forward_ios_24"
+            app:tint="?android:textColorTertiary" />
+    </RelativeLayout>
+</layout>
