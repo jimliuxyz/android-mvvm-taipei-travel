@@ -5,7 +5,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.example.taipeitravel.App
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class Utils {
     companion object {
@@ -44,8 +45,8 @@ class Utils {
             AppCompatDelegate.setApplicationLocales(appLocale)
         }
 
-        suspend fun toast(message: String) {
-            withContext(Dispatchers.Main) {
+        fun toast(message: String) {
+            GlobalScope.launch(Dispatchers.Main) {
                 Toast.makeText(
                     App.instance, message,
                     Toast.LENGTH_LONG

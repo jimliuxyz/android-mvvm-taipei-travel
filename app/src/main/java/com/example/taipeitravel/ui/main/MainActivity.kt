@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                 if (menu?.isEmpty() == true)
                     menuInflater.inflate(R.menu.main, menu)
             } else {
-                menu!!.clear()
+                menu?.clear()
             }
         }
 

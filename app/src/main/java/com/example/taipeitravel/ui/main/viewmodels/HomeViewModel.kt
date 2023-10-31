@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -20,7 +21,15 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(private val repo: TravelRepository) : ViewModel() {
 
     private val _attractions = MutableLiveData(ArrayList<Attraction>())
+
+    // attractions data
     val attractions: LiveData<ArrayList<Attraction>> = _attractions
+
+    // event for nav to detail
+    val navToDetailEvent = MutableSharedFlow<Int>(0)
+
+    // event for animate google map
+    val animateMapEvent = MutableSharedFlow<Int>(0)
 
     private var pageIdx = 0
 
@@ -29,6 +38,7 @@ class HomeViewModel @Inject constructor(private val repo: TravelRepository) : Vi
         if (reload) {
             pageIdx = 0
         }
+
         GlobalScope.launch(Dispatchers.IO) {
             var res: TravelPageResponse<Attraction>? = null
             try {
@@ -49,6 +59,18 @@ class HomeViewModel @Inject constructor(private val repo: TravelRepository) : Vi
             }
             _attractions.postValue(_attractions.value)
             callback?.invoke()
+        }
+    }
+
+    fun emitNavToDetail(idx: Int) {
+        GlobalScope.launch {
+            navToDetailEvent.emit(idx)
+        }
+    }
+
+    fun emitAnimateMapEvent(idx: Int) {
+        GlobalScope.launch {
+            animateMapEvent.emit(idx)
         }
     }
 }

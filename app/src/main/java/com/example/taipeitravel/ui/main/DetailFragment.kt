@@ -15,7 +15,8 @@ import com.example.taipeitravel.ui.main.adapters.ImageAdapter
 // for show attraction detail
 class DetailFragment : Fragment() {
 
-    private lateinit var binding: FragmentDetailBinding
+    private var _binding: FragmentDetailBinding? = null
+    val binding get() = _binding!!
 
     private val args: DetailFragmentArgs by navArgs()
 
@@ -28,10 +29,10 @@ class DetailFragment : Fragment() {
 
         enterTransition =
             TransitionInflater.from(requireContext())
-                .inflateTransition(android.R.transition.explode)
+                .inflateTransition(android.R.transition.slide_bottom)
         returnTransition =
             TransitionInflater.from(requireContext())
-                .inflateTransition(android.R.transition.fade)
+                .inflateTransition(android.R.transition.slide_bottom)
     }
 
     override fun onCreateView(
@@ -39,7 +40,7 @@ class DetailFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailBinding.inflate(inflater, container, false)
+        _binding = FragmentDetailBinding.inflate(inflater, container, false)
         binding.recycler.transitionName = "hero${args.item.id}"
 
         // setup image slider
@@ -71,5 +72,10 @@ class DetailFragment : Fragment() {
             findNavController().navigate(R.id.browserFragment, args_.toBundle())
         }
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

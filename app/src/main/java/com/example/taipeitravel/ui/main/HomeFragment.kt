@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -14,11 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taipeitravel.R
 import com.example.taipeitravel.databinding.FragmentHomeBinding
+import com.example.taipeitravel.models.Attraction
 import com.example.taipeitravel.ui.main.adapters.AttractionAdapter
 import com.example.taipeitravel.ui.main.viewmodels.HomeViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+
 
 // for list attraction
 @AndroidEntryPoint
@@ -36,24 +41,27 @@ class HomeFragment : Fragment() {
 
         adp = AttractionAdapter(
             homeViewModel.attractions.value!!
-        ) { item, sharedElements ->
-            val destination = HomeFragmentDirections.actionStartFragmentToDetailFragment(item)
-            sharedElements.transitionName = "hero${item.id}" // set for hero image animation
-            binding.executePendingBindings()
-            val extras = FragmentNavigatorExtras(
-                sharedElements to sharedElements.transitionName,
-            )
-            val builder = NavOptions.Builder()
-                .setLaunchSingleTop(true)
-
-            builder.setPopUpTo(R.id.startFragment, false, true)
-            findNavController().navigate(destination, extras)
+        ) { idx, item, sharedElements ->
+            navToDetail(item, sharedElements)
+            homeViewModel.emitAnimateMapEvent(idx)
         }
 
         adp.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
 
         // fetch first page of data
         homeViewModel.fetch(reload = true)
+
+        homeViewModel.attractions.observe(this) {
+            adp.notifyDataSetChanged()
+        }
+
+        lifecycleScope.launch {
+            homeViewModel.navToDetailEvent.collectLatest { seekToIdx ->
+                if (seekToIdx >= 0 && seekToIdx < homeViewModel.attractions.value!!.size) {
+                    navToDetail(homeViewModel.attractions.value!!.get(seekToIdx), null)
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -63,23 +71,21 @@ class HomeFragment : Fragment() {
     ): View {
 
         // reuse the view if it has not been destroyed
-        if (_binding != null)
-            return binding.root
+//        if (_binding != null)
+//            return binding.root
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.setLifecycleOwner(this);
+
 
         // set bottom sheet initial value
         BottomSheetBehavior.from(binding.btnSheet).apply {
             peekHeight = (200 * resources.displayMetrics.density + 0.5f).toInt()
-            state = BottomSheetBehavior.STATE_COLLAPSED
+            state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         // bind view adn model
         binding.homeViewModel = homeViewModel
-
-        homeViewModel.attractions.observe(viewLifecycleOwner) {
-            adp.notifyDataSetChanged()
-        }
 
         binding.myAdapter = adp
         bindScrollListener()
@@ -88,6 +94,27 @@ class HomeFragment : Fragment() {
         binding.recyclerView.doOnPreDraw { startPostponedEnterTransition() }
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding?.recyclerView?.clearOnScrollListeners()
+        _binding = null
+    }
+
+    private fun navToDetail(item: Attraction, sharedElements: View?) {
+        val destination = HomeFragmentDirections.actionStartFragmentToDetailFragment(item)
+        sharedElements?.transitionName = "hero${item.id}" // set for hero image animation
+        binding.executePendingBindings()
+
+        var extras =
+            if (sharedElements == null) FragmentNavigatorExtras()
+            else FragmentNavigatorExtras(sharedElements to sharedElements.transitionName)
+        val builder = NavOptions.Builder()
+            .setLaunchSingleTop(true)
+
+        builder.setPopUpTo(R.id.startFragment, false, true)
+        findNavController().navigate(destination, extras)
     }
 
     private var onFetching = false
@@ -112,15 +139,4 @@ class HomeFragment : Fragment() {
             }
         })
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.recyclerView.clearOnScrollListeners()
-        _binding = null
-    }
-
 }

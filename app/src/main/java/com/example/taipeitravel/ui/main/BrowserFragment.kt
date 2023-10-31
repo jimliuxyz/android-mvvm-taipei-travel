@@ -12,7 +12,8 @@ import com.example.taipeitravel.databinding.FragmentBrowserBinding
 // for browse website
 class BrowserFragment : Fragment() {
 
-    private lateinit var binding: FragmentBrowserBinding
+    private var _binding: FragmentBrowserBinding? = null
+    val binding get() = _binding!!
 
     private val args: BrowserFragmentArgs by navArgs()
 
@@ -21,7 +22,7 @@ class BrowserFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentBrowserBinding.inflate(inflater, container, false)
+        _binding = FragmentBrowserBinding.inflate(inflater, container, false)
 
         // change action bar title
         (activity as MainActivity).setActionBarTitle(args.name)
@@ -35,5 +36,10 @@ class BrowserFragment : Fragment() {
         binding.wvBrowser.loadUrl(args.url)
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

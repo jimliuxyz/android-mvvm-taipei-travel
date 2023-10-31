@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 // adapter for list attraction
 class AttractionAdapter(
     var dataModelList: ArrayList<Attraction>,
-    val clickListener: ((item: Attraction, sharedElements: View) -> Unit)? = null
+    val clickListener: ((idx: Int, item: Attraction, sharedElements: View) -> Unit)? = null
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -74,7 +74,7 @@ class AttractionAdapter(
             binding.item = data
             binding.executePendingBindings()
             binding.itemClickListener = View.OnClickListener {
-                clickListener?.invoke(data, binding.itemImage)
+                clickListener?.invoke(idx, data, binding.itemImage)
             }
         }
     }
