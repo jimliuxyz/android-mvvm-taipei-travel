@@ -16,6 +16,7 @@ import com.example.taipeitravel.R
 import com.example.taipeitravel.databinding.FragmentHomeBinding
 import com.example.taipeitravel.ui.main.adapters.AttractionAdapter
 import com.example.taipeitravel.ui.main.viewmodels.HomeViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
@@ -26,7 +27,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     val binding get() = _binding!!
 
-    private val homeViewModel: HomeViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels({ requireActivity() })
 
     private lateinit var adp: AttractionAdapter
 
@@ -67,12 +68,13 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            homeViewModel.fetch(reload = true) {
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
+        // set bottom sheet initial value
+        BottomSheetBehavior.from(binding.btnSheet).apply {
+            peekHeight = (200 * resources.displayMetrics.density + 0.5f).toInt()
+            state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
+        // bind view adn model
         binding.homeViewModel = homeViewModel
 
         homeViewModel.attractions.observe(viewLifecycleOwner) {
