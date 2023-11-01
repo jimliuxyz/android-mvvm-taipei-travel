@@ -59,6 +59,9 @@ class HomeFragment : Fragment() {
             homeViewModel.navToDetailEvent.collectLatest { seekToIdx ->
                 if (seekToIdx >= 0 && seekToIdx < homeViewModel.attractions.value!!.size) {
                     navToDetail(homeViewModel.attractions.value!!.get(seekToIdx), null)
+//                    withContext(Dispatchers.Main) {
+//                        binding.recyclerView.smoothScrollToPosition(seekToIdx)
+//                    }
                 }
             }
         }

@@ -51,7 +51,7 @@ class MyMapFragment : Fragment() {
                 if (marker != null)
                     markers.add(marker)
             }
-            animateCamera(0, 15f)
+            animateCamera(0, 13f)
         }
 
         // listen animate map event
