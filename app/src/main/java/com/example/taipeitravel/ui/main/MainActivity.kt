@@ -6,20 +6,30 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isEmpty
 import androidx.core.view.size
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.taipeitravel.R
 import com.example.taipeitravel.databinding.ActivityMainBinding
+import com.example.taipeitravel.models.Attraction
 import com.example.taipeitravel.ui.main.viewmodels.HomeViewModel
 import com.example.taipeitravel.utilities.Utils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -50,6 +60,16 @@ class MainActivity : AppCompatActivity() {
                     menuInflater.inflate(R.menu.main, menu)
             } else {
                 menu?.clear()
+            }
+        }
+
+        GlobalScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.navToDetailEvent.collectLatest { seekToIdx ->
+                    if (seekToIdx >= 0 && seekToIdx < homeViewModel.attractions.value!!.size) {
+                        navToDetail(homeViewModel.attractions.value!![seekToIdx], null)
+                    }
+                }
             }
         }
 
@@ -122,6 +142,28 @@ class MainActivity : AppCompatActivity() {
             }
 
             else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun navToDetail(item: Attraction, sharedElements: View?) {
+        val args = DetailFragmentArgs(item)
+        sharedElements?.transitionName = "hero${item.id}" // set for hero image animation
+
+        var extras =
+            if (sharedElements == null) FragmentNavigatorExtras()
+            else FragmentNavigatorExtras(sharedElements to sharedElements.transitionName)
+        val builder = NavOptions.Builder()
+            .setLaunchSingleTop(true)
+
+
+        builder.setPopUpTo(R.id.startFragment, false, true)
+        GlobalScope.launch(Dispatchers.Main) {
+            navController.navigate(
+                R.id.detailFragment,
+                args.toBundle(),
+                builder.build(),
+                extras
+            )
         }
     }
 }

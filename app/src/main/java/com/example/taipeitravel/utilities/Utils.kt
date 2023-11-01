@@ -1,12 +1,15 @@
 package com.example.taipeitravel.utilities
 
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.example.taipeitravel.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class Utils {
     companion object {
@@ -51,6 +54,23 @@ class Utils {
                     App.instance, message,
                     Toast.LENGTH_LONG
                 ).show()
+            }
+        }
+
+        // for memory leak test
+        fun gcTest(obj: Any, nameId: String) {
+            val weakRef = WeakReference<Any>(obj)
+
+            GlobalScope.launch {
+                for (idx in 0 until 100) {
+                    Runtime.getRuntime().gc();
+                    if (weakRef?.get() == null) {
+                        Log.d("gctest", "${nameId} is released!")
+                        break
+                    }
+                    Log.d("gctest", "${nameId} " + idx + ":" + weakRef?.get())
+                    delay(1000L)
+                }
             }
         }
     }

@@ -31,11 +31,14 @@ class HomeViewModel @Inject constructor(private val repo: TravelRepository) : Vi
     // event for animate google map
     val animateMapEvent = MutableSharedFlow<Int>(0)
 
+    var lastNavDetailIdx = -1
+
     private var pageIdx = 0
 
     // fetch attractions data
     fun fetch(reload: Boolean = false, callback: (() -> Unit)? = null) {
         if (reload) {
+            lastNavDetailIdx = -1
             pageIdx = 0
         }
 
@@ -64,6 +67,7 @@ class HomeViewModel @Inject constructor(private val repo: TravelRepository) : Vi
 
     fun emitNavToDetail(idx: Int) {
         GlobalScope.launch {
+            lastNavDetailIdx = idx
             navToDetailEvent.emit(idx)
         }
     }

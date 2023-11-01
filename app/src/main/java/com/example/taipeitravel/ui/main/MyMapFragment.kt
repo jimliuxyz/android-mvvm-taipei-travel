@@ -97,7 +97,7 @@ class MyMapFragment : Fragment() {
     }
 
     private fun animateCamera(idx: Int, zoom: Float?) {
-        if (idx < 0 && idx >= homeViewModel.attractions.value!!.size)
+        if (idx < 0 || idx >= homeViewModel.attractions.value!!.size)
             return
 
         var marker = markers[idx]
